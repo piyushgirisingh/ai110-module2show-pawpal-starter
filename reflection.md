@@ -31,9 +31,13 @@ Daily Plan is a lightweight container that holds the final ordered list of sched
 **b. Design changes**
 
 - Did your design change during implementation?
+
+Yes
+
 - If yes, describe at least one change and why you made it.
 
----
+The most significant change was to `Task`: the initial design had no link back to which pet the task belonged to, and `latest_start_time` was stored as a plain string. Both were problems waiting to happen. A `pet_name` attribute was added so tasks can be associated with a specific animal, which matters as soon as the app supports more than one pet. The `latest_start_time` field was changed to parse the input string into a `datetime.time` object at construction time, so the scheduler can actually compare it against a clock value rather than hitting a type error at runtime.
+
 
 ## 2. Scheduling Logic and Tradeoffs
 
