@@ -44,6 +44,34 @@ Tasks can be marked `recurrence="daily"` or `recurrence="weekly"`. Calling `comp
 **Conflict detection — lightweight**
 `quick_conflict_check()` is a fast O(n × d) alternative that uses a minute-slot dictionary instead of pairwise comparison. It returns the first warning string it finds, or `None` if the schedule is clear. It never raises an exception — any internal error is caught and surfaced as a warning string, making it safe to call anywhere.
 
+###
+
+## Testing PawPal+
+
+### Run the test suite
+
+```bash
+python -m pytest tests/test_pawpal.py -v
+```
+
+### What the tests cover
+
+The suite contains **16 tests** across three feature areas:
+
+| Area | Tests | What is verified |
+|---|---|---|
+| **Sorting** | 4 | Chronological order (earliest deadline first), priority tie-breaking within the same deadline, no-deadline tasks sorted last, empty task list handled gracefully |
+| **Recurrence** | 5 | Daily tasks spawn a copy due tomorrow; weekly tasks spawn a copy due in 7 days; one-off tasks return `None` and add nothing; the spawned task preserves the original deadline time; unknown task titles return `None` without crashing |
+| **Conflict detection** | 4 | Shared deadlines are flagged; overlapping time windows are flagged; clean sequential schedules produce zero conflicts; `quick_conflict_check()` returns `None` for clean schedules and a `"Warning:"` string for overlapping ones |
+
+### Confidence level
+
+**Reliability: 4 / 5 stars**
+
+The three core scheduling behaviors — sorting, recurrence, and conflict detection — are each tested along both their happy path and their most important edge cases (empty list, unknown title, exact boundary overlap, deadline preservation on recurrence). All 16 tests pass.
+
+One star is held back because the test suite does not yet cover `generate_plan()` end-to-end (budget exhaustion, tasks dropped, `scheduled_start` assignment) or the Streamlit UI layer. Those paths contain logic that could hide bugs not caught by the current unit tests.
+
 ---
 
 ## Getting started
