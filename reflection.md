@@ -51,7 +51,14 @@ The most significant change was to `Task`: the initial design had no link back t
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
 
----
+**Greedy sequential scheduling instead of optimal packing**
+
+The scheduler uses a greedy algorithm: it sorts tasks by earliest deadline then descending priority, then walks the list once and schedules each task if it fits within the remaining time budget. A task that is too long to fit is dropped immediately — the scheduler never backtracks to check whether a shorter lower-priority task could fill the remaining minutes.
+
+The consequence is that the schedule is not always optimal. For example, if the owner has 15 minutes left and one 20-minute task followed by one 10-minute task, the greedy approach drops both (the 20-minute task doesn't fit, and by the time the 10-minute task is reached the slot is still open but it was sorted after the larger task). A knapsack-style algorithm would catch the 10-minute task and fill the gap.
+
+This tradeoff is reasonable for a pet care app for two reasons. First, pet care tasks are not arbitrary items to pack — they have real-world sequencing constraints (medication before breakfast, walk before the heat of the day) that a pure knapsack solver would ignore. The greedy approach respects the priority and deadline ordering that the owner explicitly set. Second, the number of daily tasks for one or two pets is small (typically under 15), so the difference between greedy and optimal output is unlikely to matter in practice. The simplicity of a single-pass O(n log n) sort plus O(n) scan is easier to reason about, test, and explain to a non-technical user than a combinatorial solver.
+
 
 ## 3. AI Collaboration
 
